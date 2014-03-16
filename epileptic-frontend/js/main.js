@@ -4,6 +4,7 @@ var intervalId;
 
 function init() {
     output = $("#color");
+    output_image = $("#image");
     socket =  io.connect("http://"+window.location.hostname);
     
     blink("#FF0000", 100, 600);
@@ -13,22 +14,32 @@ function init() {
 
 function onDataEvent(data) {
     console.log(data);
-    blink(data.color, data.duration, data.interval);
-    //socket.emit('my other event', { my: 'data' });
+
+    if (data.image) {
+        blink(data.color, data.duration, data.interval, true);
+        setImage(data.image);
+    } else {
+        blink(data.color, data.duration, data.interval, false);
+        output.css('opacity', 1);
+    }
 }
 
-function blink(color, duration, interval) {
+function blink(color, duration, interval, hasImage) {
     clearRequestInterval(intervalId);
     intervalId = requestInterval(function() { 
-        flash(color, duration); 
+        flash(color, duration, hasImage); 
     }, interval);
 }
 
-function flash(color, duration) {
+function flash(color, duration, hasImage) {
     //console.log("blink", color, duration);
     setColor(color);
     requestTimeout(function() {
-        setColor("black");
+        if (hasImage) {
+            setColor(color);
+        } else {
+            setColor('black');
+        }
     }, duration);
 }
 
@@ -36,9 +47,15 @@ function setColor(color) {
     //console.log("color", color);
     if (typeof color === "undefined") {
         color = "black";
+    } else {
+        output.css('background-color', color);
     }
-    output.css('background-color', color);
 };
+
+function setImage(image) {
+    output_image.css('background-image', 'url('+image+')');
+    output.css('opacity', 0.8);
+}
 
 $(function() {
     init();

@@ -40,10 +40,9 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('input', function(data) {
-        console.log(data.bpm)
         console.log('[' + socket.handshake.address.address + '] input', data);
 
-        sendToClients(data.color,data.bpm);
+        sendToClients(data.color,data.bpm, data.image);
     });
 
     socket.on('disconnect', function() {
@@ -66,7 +65,7 @@ app.post('/stop', function (req, res) {
     res.send(200);
 });
 
-function sendToClients(color, bpm) {
+function sendToClients(color, bpm, image) {
     var bpsecond = Math.round(bpm/60);
     var interval = 0;
     if (bpm != 0) {
@@ -75,10 +74,10 @@ function sendToClients(color, bpm) {
 
     var duration = (interval/5);
 
-
     io.sockets.emit('data', {
         color: color,
         duration: duration,
-        interval: interval
+        interval: interval,
+        image: image
     });
 }
