@@ -7,6 +7,8 @@
             font-family: 'helvetica neue', helvetica, arial, sans-serif;
             padding: 0;
             margin: 0;
+            color: #FFF;
+            padding: 30px;
         }
         .lights {
             overflow:auto;
@@ -27,6 +29,11 @@
             border:20px solid hsla(0, 80%, 50%, 0);
             border-radius:40px;
             opacity:0.2;
+        }
+        input {
+            width: 100%;
+            display: block;
+            margin: 0 auto;
         }
     </style>
     <script src="js/vendor/socket.io.js"></script>
@@ -75,8 +82,13 @@
 
     <audio autoplay></audio>
 
+    <input type="range" id="foeffel" min="1" value="3" max="5">
+    <h1 id="foeffelval"></h1>
+    <h1 id="bpmval"></h1>
+
     <script type="text/javascript">
-        var socket = io.connect("http://"+window.location.hostname);
+        //var socket = io.connect("http://"+window.location.hostname);
+        var socket = io.connect("http://10.100.1.61:7000");
 
         //Main Light ID
         var mainLightId = 0;
@@ -223,18 +235,17 @@
         // BPM Counter by Claus
         window.setInterval(function(){
             var lights = document.getElementsByTagName('i');
-            console.log(counter);
-
-            var bpm = counter/3 * 60;
+            var foeffel = document.getElementById("foeffel").value;
+            var bpm = counter/foeffel * 60;
             var lightColour = followId*10;
-            
+
+            document.getElementById("foeffelval").innerHTML = "F*factor: "+foeffel;
+            document.getElementById("bpmval").innerHTML = "BPM: "+ bpm;
+
             var input = {
                 "color": 'hsl('+lightColour+', 80%, 50%)',
                 "bpm": bpm
             };
-
-            console.log('input', input);
-
             socket.emit('input', input);
 
             counter = 0;
