@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Butsco Radio</title>
+    <style>
+        body {
+            font-family: 'helvetica neue', helvetica, arial, sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+        .lights {
+            overflow:auto;
+            width:96%;
+            padding:2%;
+            text-align:center;
+        }
+        h2 {
+            font-size:1.6em;
+            font-weight:normal;
+            color:hsla(160, 80%, 55%, 1);
+        }
+        i {
+            display:none; 
+            margin:2.4%;
+            width:40px; height:40px;
+            background-color:hsla(0, 80%, 50%, 0);
+            border:20px solid hsla(0, 80%, 50%, 0);
+            border-radius:40px;
+            opacity:0.2;
+        }
+    </style>
+    <script src="js/vendor/socket.io.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+        
+</head>
+<body>
+    <section class="lights">
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+    </section>
+
+    <audio autoplay></audio>
+
+    <script type="text/javascript">
+        var socket = io.connect("http://"+window.location.hostname);
+
+        //Main Light ID
+        var mainLightId = 0;
+        var followId;
+        var counter = 0;
+
+        //Audio stuff
+        var contextClass = (window.AudioContext || window.webkitAudioContext);
+
+        // Create player
+        var audio = document.createElement('audio');
+
+        //get mic in
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        navigator.getUserMedia({
+            audio: true,
+            video: false
+        },
+        gotStream,
+        function(err) {
+            console.log("The following error occured: " + err);
+        });
+
+        //for sound to be passed into
+        var audioBuffer;
+
+        //for analyser node
+        var analyzer;
+
+        //set empty array hald of fft size or equal to frequencybincount (you could put frequency bin count here if created)
+        var frequencyData = new Uint8Array(1024);
+        if (contextClass) {
+
+            // Web Audio API is available.
+            var context = new contextClass();
+        } else {
+
+            // Web Audio API is not available. Ask the user to use a supported browser.
+            alert("Oh nos! It appears your browser does not support the Web Audio API, please upgrade or use a different browser");
+        }
+
+        // success callback when requesting audio input stream
+        function gotStream(stream) {
+            audio.src = window.URL.createObjectURL(stream);
+            audio.volume = 1;
+            audio.play();
+
+            createAnalyser()
+            
+            // Create an AudioNode from the stream.
+            var mediaStreamSource = context.createMediaStreamSource(stream);
+            connectAnalyser(mediaStreamSource)
+            update();
+        }
+
+        function createAnalyser() {
+            //create analyser node
+            analyzer = context.createAnalyser();
+            
+            //set size of how many bits we analyse on
+            analyzer.fftSize = 2048;
+        }
+
+        function connectAnalyser(source) {
+            //connect to source
+            source.connect(analyzer);
+        }
+
+        function playSound() {
+            //passing in file
+            createAnalyser();
+            
+            //creating source node
+            var source = context.createMediaElementSource(audioElement);
+            connectAnalyser(source);
+        }
+
+        function update() {
+
+            setTimeout(function(){
+                requestAnimationFrame(update);
+            }, 1000/12);
+            
+
+            //constantly getting feedback from data
+            analyzer.getByteFrequencyData(frequencyData);
+
+            //animation stuff
+            var lights = document.getElementsByTagName('i');
+            var totalLights = lights.length;
+            for (var i=0; i<totalLights; i++) {
+
+                //set light colours
+                var lightColour = i*10;
+                lights[i].style.backgroundColor = 'hsla('+lightColour+',  80%, 50%, 0.8)';
+                lights[i].style.borderColor = 'hsla('+lightColour+',  80%, 50%, 1)';
+
+                // Click Light
+                lights[i].onclick = function(e){
+                    mainLightId = i;
+                };
+
+                //flash on frequency
+                var freqDataKey = i*2;
+                if (frequencyData[freqDataKey] > 170){                    
+
+                    if(lights[i].style.opacity != 1){
+                        counter++;        
+                    }
+
+                    //start animation on element
+                    lights[i].style.opacity = "1";
+                         
+                } else {
+                    lights[i].style.opacity = "0.15";
+                }
+
+                // Background Setup
+                if (frequencyData[freqDataKey] > 170 && i == followId) {
+                    document.body.style.backgroundColor = lights[i].style.backgroundColor;
+                }else if (i == 0){
+                    document.body.style.backgroundColor = "#000";
+                }
+            }      
+        };
+
+        // Set Background previous counter
+        var prevState = new Array();
+        window.setInterval(function(){
+            var lights = document.getElementsByTagName('i');
+            var totalLights = lights.length;
+            for (var i=0; i<totalLights; i++) {
+                var currentState = lights[i].style.opacity==1
+                if(prevState[i] != currentState){
+                    followId = i;
+                }
+            }
+
+            for (var i=0; i<totalLights; i++) {
+                prevState[i] = lights[i].style.opacity == 1;
+            }
+        }, 500);
+
+        // BPM Counter by Claus
+        window.setInterval(function(){
+            var lights = document.getElementsByTagName('i');
+            console.log(counter);
+
+            var bpm = counter/3 * 60;
+            var lightColour = followId*10;
+            
+            var input = {
+                "color": 'hsl('+lightColour+', 80%, 50%)',
+                "bpm": bpm
+            };
+
+            console.log('input', input);
+
+            socket.emit('input', input);
+
+            counter = 0;
+        }, 1000);
+
+        
+        function hslToRgb(h, s, l){
+            var r, g, b;
+
+            if(s == 0){
+                r = g = b = l; // achromatic
+            }else{
+                function hue2rgb(p, q, t){
+                    if(t < 0) t += 1;
+                    if(t > 1) t -= 1;
+                    if(t < 1/6) return p + (q - p) * 6 * t;
+                    if(t < 1/2) return q;
+                    if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                }
+
+                var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                var p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+        
+    </script>
+</body>
+</html>
