@@ -151,7 +151,7 @@ function onMidiEvent(data) {
 }
 
 function sendToLightMan(colorIndex) {
-     lights_socket.emit('hackevent', 'eplepticCOLOR-'+colorIndex);
+     lights_socket.emit('hackevent', 'eplepticCOLOR'+colorIndex);
 };
 
 function sendBeatToLightMan() {
