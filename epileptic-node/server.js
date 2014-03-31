@@ -51,7 +51,7 @@ lights_socket.on('connect', function(){
 // listen to sound input and time syncing thing
 io.sockets.on('connection', function (socket) {
     console.log('[' + socket.handshake.address.address + '] user connected');
-    
+
     socket.on('ping', function (clienttime, fn) {
         // console.log(clienttime);
 
@@ -109,6 +109,11 @@ function onMidiEvent(data) {
     var velocity = data[2];
 
     isBeat = (code == 145);
+    isBeatLight = (code == 145 && note == 36);
+
+    if (isBeatLight) {
+      sendBeatToLightMan();
+    }
 
     if (isBeat) {
         var beat = +new Date();
@@ -148,6 +153,12 @@ function onMidiEvent(data) {
 function sendToLightMan(colorIndex) {
      lights_socket.emit('hackevent', 'eplepticCOLOR-'+colorIndex);
 };
+
+function sendBeatToLightMan() {
+     lights_socket.emit('hackevent', 'eplepticbeat');
+};
+
+
 
 function sendToClients(color, bpm) {
     if (color == "rainbow") {
