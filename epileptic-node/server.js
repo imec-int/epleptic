@@ -5,8 +5,8 @@ var _ = require('underscore')
     , io = require('socket.io').listen(server)
     , io_client = require('socket.io-client');
 
-var midi_socket_server = "http://localhost:3000";
-var lights_socket_server = "http://hacklights.mixapp.be/";
+var midi_socket_server = "http://10.100.1.2:3000"; //mixmini
+var lights_socket_server = "http://10.100.1.4:9000/";
 
 var prev_beats = [];
 var current_color_index = 0;
@@ -129,6 +129,8 @@ function onMidiEvent(data) {
             sum += diff;
         }
 
+       
+
         var avg_time_between_beats = sum/prev_beats.length; // milliseconds
         var bpm = Math.round(60000/avg_time_between_beats);
 
@@ -167,7 +169,8 @@ function sendToClients(color, bpm) {
 
     console.log("color", color);
 
-    var bpsecond = Math.round(bpm/60);
+    // var bpsecond = Math.round(bpm/60);
+    var bpsecond = bpm/60; //SAM
     var interval = 0;
     if (bpm != 0) {
         interval = (1000/bpsecond);
