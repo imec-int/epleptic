@@ -167,7 +167,7 @@ function sendToClients(color, bpm) {
         color = rainbow[current_color_index];
     }
 
-    console.log("color", color);
+    // console.log("color", color);
 
     // var bpsecond = Math.round(bpm/60);
     var bpsecond = bpm/60; //SAM
