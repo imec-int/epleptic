@@ -5,6 +5,9 @@ var _ = require('underscore')
     , io = require('socket.io').listen(server)
     , io_client = require('socket.io-client');
 
+
+var flitsenaan = false;
+
 var midi_socket_server = "http://mixmini.mixlab.be:3000"; //mixmini
 var lights_socket_server = "http://hacklights.mixapp.be:9000/";
 
@@ -31,6 +34,8 @@ server.listen(7000,"0.0.0.0");
 app.get('/', function (req, res) {
     res.sendfile(__dirname + '/index.html');
 });
+
+
 
 // listen to the MIDI socket
 var midi_socket = io_client.connect(midi_socket_server);
@@ -103,19 +108,30 @@ app.post('/stop', function (req, res) {
     res.send(200);
 });
 
-var hasStoppedTimer = null;
+app.post('/flitsenaan', function (req, res) {
+    flitsenaan = true;
+
+    res.json(flitsenaan);
+});
+
+app.post('/flitsenuit', function (req, res) {
+    flitsenaan = false;
+
+    res.json(flitsenaan);
+
+
+
+    io.sockets.emit('data', {
+        color: "#000000",
+        duration: 0,
+        interval: Infinity
+    });
+});
+
 
 function onMidiEvent(data) {
 
-    clearTimeout(hasStoppedTimer);
-    hasStoppedTimer = setTimeout(function () {
-        console.log("> sending stop to clients");
-        io.sockets.emit('data', {
-            color: "#000000",
-            duration: 0,
-            interval: Infinity
-        });
-    }, 1000); // na seconde beschouwen we het alsof er niets meer binnenkomt.
+    if(!flitsenaan) return;
 
 
     var code = data[0];

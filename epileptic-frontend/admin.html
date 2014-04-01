@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <title>Epleptic | Admin</title>
+        <script src="js/vendor/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(function () {
+                $("#flitsenaan").click(function (event) {
+                    $.post('/flitsenaan', {}, updateToestand);
+                });
+
+                $("#flitsenuit").click(function (event) {
+                    $.post('/flitsenuit', {}, updateToestand);
+                });
+
+
+                function updateToestand (aan) {
+                    if(aan){
+                        $("#toestand").html("AAN");
+                    }else{
+                         $("#toestand").html("UIT");
+                    }
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <button id="flitsenaan">Flitsen AAN</button>
+        <button id="flitsenuit">Flitsen UIT</button>
+        <span id="toestand">UIT?</span>
+    </body>
+</html>
