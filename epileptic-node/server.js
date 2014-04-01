@@ -124,6 +124,10 @@ app.post('/flitsenuit', function (req, res) {
     res.json(flitsenaan);
 });
 
+app.get('/flitsenvisible', function (req, res) {
+    res.json(flitsenaan);
+});
+
 
 function onMidiEvent(data) {
     var code = data[0];

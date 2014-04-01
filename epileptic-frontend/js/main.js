@@ -10,6 +10,9 @@ function init() {
 
     socket.on('data', onDataEvent);
     socket.on('visible', onVisible);
+
+    // snel eens ophalen wat de visible state is:
+    $.get('/flitsenvisible', onVisible);
 }
 
 function onDataEvent(data) {
