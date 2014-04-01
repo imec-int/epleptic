@@ -103,7 +103,21 @@ app.post('/stop', function (req, res) {
     res.send(200);
 });
 
+var hasStoppedTimer = null;
+
 function onMidiEvent(data) {
+
+    clearTimeout(hasStoppedTimer);
+    hasStoppedTimer = setTimeout(function () {
+        console.log("> sending stop to clients");
+        io.sockets.emit('data', {
+            color: "#000000",
+            duration: 0,
+            interval: Infinity
+        });
+    }, 1000); // na seconde beschouwen we het alsof er niets meer binnenkomt.
+
+
     var code = data[0];
     var note = data[1];
     var velocity = data[2];
