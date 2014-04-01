@@ -6,7 +6,7 @@ var _ = require('underscore')
     , io_client = require('socket.io-client');
 
 
-var flitsenaan = true;
+var flitsenaan = false;
 
 var midi_socket_server = "http://mixmini.mixlab.be:3000"; //mixmini
 var lights_socket_server = "http://hacklights.mixapp.be:9000/";
