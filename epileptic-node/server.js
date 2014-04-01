@@ -123,13 +123,15 @@ app.post('/flitsenuit', function (req, res) {
 
     io.sockets.emit('data', {
         color: "#000000",
-        duration: 0,
-        interval: Infinity
+        duration: 80,
+        interval: 1000
     });
 });
 
 
 function onMidiEvent(data) {
+
+    // console.log(flitsenaan);
 
     if(!flitsenaan) return;
 
