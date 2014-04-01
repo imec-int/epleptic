@@ -9,6 +9,7 @@ function init() {
     blink("#FF0000", 100, 600);
 
     socket.on('data', onDataEvent);
+    socket.on('visible', onVisible);
 }
 
 function onDataEvent(data) {
@@ -38,6 +39,14 @@ function setColor(color) {
         color = "black";
     }
     output.css('background-color', color);
+};
+
+function onVisible (visible) {
+    if(visible){
+        $("#overlay").hide();
+    }else{
+        $("#overlay").show();
+    }
 };
 
 $(function() {

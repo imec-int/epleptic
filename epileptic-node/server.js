@@ -111,29 +111,21 @@ app.post('/stop', function (req, res) {
 app.post('/flitsenaan', function (req, res) {
     flitsenaan = true;
 
+    io.sockets.emit('visible', true);
+
     res.json(flitsenaan);
 });
 
 app.post('/flitsenuit', function (req, res) {
     flitsenaan = false;
 
+    io.sockets.emit('visible', false);
+
     res.json(flitsenaan);
-
-
-
-    io.sockets.emit('data', {
-        color: "#000000",
-        duration: 0,
-        interval: Infinity
-    });
 });
 
 
 function onMidiEvent(data) {
-
-    if(!flitsenaan) return;
-
-
     var code = data[0];
     var note = data[1];
     var velocity = data[2];
